@@ -1,0 +1,103 @@
+import React,{Component,useState} from 'react';
+import {View, Text, StyleSheet, Image} from 'react-native'
+
+import axios from 'axios';
+
+class GetUvi extends React.Component{
+    
+    constructor(props){
+    super(props);
+    this.state = {
+        results: " ",
+        loading: false,
+        uvi: " ",
+        dica: " "
+    }
+  }
+componentDidMount()
+{
+    this.getapiData()
+}
+async getapiData()
+{
+    try{
+    this.setState({ loading: true });
+    await axios.get('https://api.openweathermap.org/data/2.5/onecall?lat=-27.0990497&lon=-52.6452722&exclude=daily,hourly,minutely&appid=6e2f966857d6fcace1d7be48ede3d56d&lang=pt_br') 
+    .then((response)=>{
+        const data = response.data
+        const uvi = data.current.uvi
+        this.setState({uvi:uvi})
+        //console.log(uvi)
+    })
+    if(this.state.uvi <= 2){
+       this.setState({results:'Indice UV BAIXO'})
+       this.setState({dica:'Recomenda-se o uso de proteção solar somente se você tiver a pele muito clara.'})
+    }
+    if(this.state.uvi > 2 && this.state.uvi <=5 ){
+        this.setState({results:'Indice UV MODERADO'})
+        this.setState({dica:'Aplique protetor solar FPS 30 a cada 2 horas, mesmo em dias nublados, e depois de nadar ou suar.'})
+    }
+    if(this.state.uvi > 5 && this.state.uvi <=7){
+        this.setState({results:'Indice UV ALTO'})
+        this.setState({dica:'Aplique protetor solar FPS 30+ a cada 2 horas - Reduza o tempo de exposição ao sol entre as 10:00h. e 16:00h.'})
+    }
+    if(this.state.uvi > 7 && this.state.uvi <= 10){
+        this.setState({results:'Indice UV MUITO ALTO'})
+        this.setState({dica:'Aplique protetor solar FPS 50 a cada 2 horas - Tomar precauções extra, porque a pele desprotegida e os olhos vão se danificar e podem queimar-se rapidamente.'})
+    }
+    if(this.state.uvi > 10){
+        this.setState({results:'Indice UV EXTREMO'})
+        this.setState({dica:'Aplique protetor solar FPS 50+ a cada 2 horas - Evitar sol entre as 10:00h e 16:00h '})
+    }
+    }catch(err){
+        console.log(err)
+    }
+}
+  
+    render(){
+    
+    return(
+        <View style={styles.container}>
+        {
+              <View style={styles.container}>
+                <Image source={require('./uvi.png')} style={{width:40,height:40}}/> 
+                <Text style={styles.cardTitle}>
+                    {this.state.results}: {this.state.uvi}
+                </Text>
+                <Text style={styles.cardText}>
+                    OBS: {this.state.dica}
+                </Text>
+              </View>
+            
+            }
+        </View>
+    );
+    }
+}
+const styles = StyleSheet.create({
+    container:{
+        //backgroundColor:'#f2f2f2',
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignContent:'center',
+        color:'#fff',
+    },
+    cardTitle:{
+        color:'#fff',
+        alignContent:'center',
+        alignItems:'center',
+        justifyContent: 'center',
+        fontSize:16,
+        fontWeight:'bold'
+    },
+    cardText:{
+        color:'yellow',
+        alignContent:'center',
+        alignItems:'center',
+        justifyContent: 'center',
+        textAlign:'center'
+
+    },
+
+});
+export default GetUvi;
